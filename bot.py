@@ -33,4 +33,4 @@ def reply(message):
 
 # Run bot
 print("Bot is running...")
-bot.infinity_polling()
+bot.infinity_polling(skip_pending=True, none_stop=True)
