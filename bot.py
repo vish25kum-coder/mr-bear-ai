@@ -7,7 +7,7 @@ TELEGRAM_TOKEN = os.getenv("8031656712:AAGJBxJqliV7KskwUUZQcYDU2gf1Fv8g6W8")
 GEMINI_API_KEY = os.getenv("AIzaSyCusRWxXMju-lZx0tw2nfUXuYjq5Xk3Dw4")
 
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
