@@ -1,45 +1,36 @@
-import json
+import os
+import telebot
 import google.generativeai as genai
-from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-# Gemini API key
-genai.configure(api_key="AIzaSyCusRWxXMju-lZx0tw2nfUXuYjq5Xk3Dw4")
+# ENV variables
+TELEGRAM_TOKEN = os.getenv("AIzaSyCusRWxXMju-lZx0tw2nfUXuYjq5Xk3Dw4")
+GEMINI_API_KEY = os.getenv("8031656712:AAGJBxJqliV7KskwUUZQcYDU2gf1Fv8g6W8")
 
-# Load memory
-with open("memory.json", "r") as f:
-    brain = json.load(f)
+# Configure Gemini
+genai.configure(api_key=GEMINI_API_KEY)
 
 model = genai.GenerativeModel("gemini-2.5-flash")
 
-# Reply function
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text
+# Create bot
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-    prompt = f"""
-You are {brain['name']}.
-Personality: {brain['personality']}
-Creator: {brain['creator']}
 
-User message: {user_message}
+# Start command
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.reply_to(message, "Hello! Main Mr Bear AI hoon. Mujhse kuch bhi pucho.")
 
-Reply like a smart AI assistant.
-"""
 
-    response = model.generate_content(prompt)
+# Handle all messages
+@bot.message_handler(func=lambda message: True)
+def reply(message):
+    try:
+        response = model.generate_content(message.text)
+        bot.reply_to(message, response.text)
+    except Exception as e:
+        bot.reply_to(message, "Error: " + str(e))
 
-    await update.message.reply_text(response.text)
 
-# Main function
-def main():
-    TELEGRAM_TOKEN = "8031656712:AAGJBxJqliV7KskwUUZQcYDU2gf1Fv8g6W8"
-
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    print("Mr Bear AI is running with Gemini...")
-    app.run_polling()
-
-if __name__ == "__main__":
-    main()
+# Run bot
+print("Bot is running...")
+bot.infinity_polling()
